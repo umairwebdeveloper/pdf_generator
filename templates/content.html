@@ -1,0 +1,111 @@
+{# content.html – do NOT include TOC here #}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Angebot – {{ product.product_name }}</title>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/public_offer.css', _external=True) }}">
+</head>
+<body class="offer-page-wrapper">
+
+  {# 1) Cover #}
+  <section id="coverPage"
+           style="page-break-after:always;
+                  background:url('{{ url_for('static', filename='img/' ~ company.company_bg, _external=True) }}')
+                             center/cover no-repeat;">
+    <div class="cover-content">
+      <div class="cover-header-row">
+        <img  src="{{ url_for('static', filename='img/' ~ company.company_logo, _external=True) }}"
+              alt="Logo"
+              class="cover-logo">
+        <div class="cover-company-name">{{ company.company_name }}</div>
+      </div>
+      <h1 class="cover-offer-title">Angebot für {{ product.product_name }}</h1>
+      <p class="cover-date">Erstellt am: {{ creation_date }}</p>
+    </div>
+  </section>
+
+  {# 2a) Product overview (no break) #}
+  <section id="productOverview" style="page-break-after:auto">
+    <header class="offer-header mb-3">
+      <img  src="{{ url_for('static', filename='img/' ~ product.product_img, _external=True) }}"
+            alt="Produktbild">
+      <div>
+        <h2 class="offer-title">{{ product.product_name }}</h2>
+        <p class="offer-subtitle">{{ product.product_description }}</p>
+      </div>
+    </header>
+  </section>
+
+  {# 2b) Summary Table #}
+  <section id="summaryTable" style="page-break-after:auto">
+    <h3>Preiszusammenstellung</h3>
+    <table class="price-table">
+      <thead>
+        <tr><th>Bezeichnung</th><th>Preis</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Basispreis</td>
+          <td>€{{ "{:,.2f}".format(base_price) }}</td>
+        </tr>
+        {% for area in areas %}
+          {% for g in area.groups %}
+            {% if g.selected_option %}
+              <tr>
+                <td>{{ area.area_name }} – {{ g.group_name }}</td>
+                <td>€{{ "{:,.2f}".format(g.selected_price) }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        <tr class="total-row">
+          <td><strong>Gesamt</strong></td>
+          <td><strong>€{{ "{:,.2f}".format(total_price) }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  {# 3) Detailed areas #}
+  {% for area in areas %}
+    <section id="area_{{ loop.index }}" class="area-block">
+      <div class="area-header mb-2">
+        <img  src="{{ url_for('static', filename='img/' ~ area.area_img, _external=True) }}"
+              alt="{{ area.area_name }}">
+        <div>
+          <h3>{{ area.area_name }}</h3>
+          {% if area.area_description %}
+            <p class="text-muted">{{ area.area_description }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% for g in area.groups %}
+        <div class="group-card">
+          <h4>{{ g.group_name }}</h4>
+          {% if g.group_description %}
+            <p class="text-muted">{{ g.group_description }}</p>
+          {% endif %}
+
+          {% if g.selected_option %}
+            <div class="option-details">
+              <img  src="{{ url_for('static', filename='img/' ~ g.selected_option.option_img, _external=True) }}"
+                    alt="{{ g.selected_option.option_name }}">
+              <div class="option-texts">
+                <div class="option-name">{{ g.selected_option.option_name }}</div>
+                <div class="option-desc">{{ g.selected_option.option_description }}</div>
+              </div>
+              <div class="option-price">€{{ "{:,.2f}".format(g.selected_price) }}</div>
+            </div>
+          {% else %}
+            <p class="fst-italic text-muted">Keine Auswahl für diese Gruppe.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+
+</body>
+</html>

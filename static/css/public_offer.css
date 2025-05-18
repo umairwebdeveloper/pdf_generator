@@ -1,0 +1,95 @@
+/* small thumbnails for all images */
+.offer-page-wrapper img {
+    max-width: 100px;
+    max-height: 80px;
+    object-fit: contain;
+    margin-right: 1em;
+}
+/* ─── TOC layout ─── */
+.toc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8em;
+}
+.toc-header h1 {
+    color: #d31f2d;
+    margin: 0;
+}
+.toc-header .page-label {
+    color: #d31f2d;
+    font-weight: bold;
+}
+
+.toc-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4em;
+}
+/* TOC links: black, no underline */
+#toc .title a {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Optional: keep them un-underlined even on hover */
+#toc .title a:hover,
+#toc .title a:focus {
+    text-decoration: none;
+    color: #000;
+}
+.toc-item .title {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.toc-item .dots {
+    flex: 1;
+    border-bottom: 1px dotted #000;
+    margin: 0 0.5em;
+}
+.toc-item .page {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* price table */
+.price-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+.price-table th,
+.price-table td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+}
+.price-table .total-row td {
+    border-top: 2px solid #333;
+}
+
+/* area blocks flow one after the other */
+.area-block {
+    /* no forced page-break: let Playwright paginate */
+    margin-bottom: 1.5em;
+}
+.area-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+.group-card {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+.option-details {
+    display: flex;
+    align-items: center;
+    margin-left: 1em;
+    margin-bottom: 0.5em;
+}
+.option-texts {
+    flex: 1;
+}
+.option-price {
+    font-weight: bold;
+}

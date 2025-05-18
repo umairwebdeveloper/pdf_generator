@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Angebot – {{ product.product_name }}</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  {% if company.custom_design_enabled and company.custom_css_offer %}
+    <style>{{ company.custom_css_offer|safe }}</style>
+  {% else %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public_offer.css', _external=True) }}">
+  {% endif %}
+
+  <style>
+    #coverPage {
+      background: url('{{ url_for("static", filename="uploads/" ~ company.company_bg, _external=True) }}') center/cover no-repeat !important;
+    }
+  </style>
+
+</head>
+
+<body class="offer-page-wrapper">
+
+  <section id="coverPage"> <div class="cover-content">
+      <div class="cover-header-row">
+        {% if company.company_logo %}
+        <img src="{{ url_for('static', filename='uploads/' ~ company.company_logo, _external=True) }}"
+             alt="{{ company.company_name }} Logo"
+             class="cover-logo">
+        {% endif %}
+        <div class="cover-company-name">{{ company.company_name }}</div>
+      </div>
+
+      <h1 class="cover-offer-title">Angebot für {{ product.product_name }}</h1>
+      <p class="cover-date">Erstellt am: {{ creation_date }}</p>
+    </div>
+  </section>
+
+  <section id="productOverview">
+    <header class="offer-header mb-4"> {% if product.product_img %}
+      <img src="{{ url_for('static', filename='uploads/' ~ product.product_img, _external=True) }}"
+           alt="Produktbild {{ product.product_name }}">
+      {% endif %}
+      <div>
+        <h2 class="offer-title">{{ product.product_name }}</h2>
+        {% if product.product_description %}
+        <p class="offer-subtitle">{{ product.product_description }}</p>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="price-section">
+      <div class="base-price">
+        <span>Grundpreis:</span> <span>${{ "%.2f"|format(base_price|float) }}</span>
+      </div>
+
+      {% for area in areas %}
+        {% if area.groups|selectattr("selected_option")|list|length > 0 %} <div class="area-price-block">
+          <h4>{{ area.area_name }}</h4>
+          {% for g in area.groups %}
+            {% if g.selected_option %}
+              <div class="option-line">
+                 <span>{{ g.group_name }}: {{ g.selected_option.option_name }}</span>
+                 <span>${{ "%.2f"|format(g.selected_price|float) }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      <hr class="my-3"> <div class="total-price">
+        <span>Gesamtpreis:</span> <strong>${{ "%.2f"|format(total_price|float) }}</strong>
+      </div>
+    </div>
+  </section>
+
+  {% for area in areas %}
+    <section class="area-block">
+      <div class="area-header mb-4">
+        {% if area.area_img %}
+        <img src="{{ url_for('static', filename='uploads/' ~ area.area_img, _external=True) }}"
+             alt="{{ area.area_name }}">
+        {% endif %}
+        <div>
+          <h3>{{ area.area_name }}</h3>
+          {% if area.area_description %}
+            <p class="text-muted">{{ area.area_description }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% for g in area.groups %}
+        <div class="group-card">
+          <h4>{{ g.group_name }}</h4>
+          {% if g.group_description %}
+            <p class="text-muted">{{ g.group_description }}</p>
+          {% endif %}
+
+          {% if g.selected_option %}
+            <div class="option-details">
+              {% if g.selected_option.option_img %}
+              <img src="{{ url_for('static', filename='uploads/' ~ g.selected_option.option_img, _external=True) }}"
+                   alt="{{ g.selected_option.option_name }}">
+              {% endif %}
+              <div class="option-texts">
+                <div class="option-name">{{ g.selected_option.option_name }}</div>
+                {% if g.selected_option.option_description %}
+                <div class="option-desc">{{ g.selected_option.option_description }}</div>
+                {% endif %}
+              </div>
+              <div class="option-price">${{ "%.2f"|format(g.selected_price|float) }}</div>
+            </div>
+          {% else %}
+            <p class="fst-italic text-muted">Für diese Gruppe wurde keine Option ausgewählt.</p> {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+
+  </body>
+</html>
