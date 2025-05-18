@@ -169,20 +169,21 @@ def offer_pdf(offer_id=1):
         browser.close()
 
     # — 4) Build your TOC list with computed pages —
+    page_offset = 2
     toc = [
-        {"id": "coverPage", "title": "Deckblatt", "page": positions["coverPage"]},
+        {"id": "coverPage", "title": "Deckblatt", "page": positions["coverPage"]+page_offset},
         {
             "id": "productOverview",
             "title": "Preisübersicht",
-            "page": positions["productOverview"],
+            "page": positions["productOverview"]+page_offset,
         },
         {
             "id": "summaryTable",
             "title": "Preistabelle",
-            "page": positions["summaryTable"],
+            "page": positions["summaryTable"]+page_offset,
         },
     ] + [
-        {"id": f"area_{i+1}", "title": a["area_name"], "page": positions[f"area_{i+1}"]}
+        {"id": f"area_{i+1}", "title": a["area_name"], "page": positions[f"area_{i+1}"]+page_offset}
         for i, a in enumerate(areas)
     ]
 
@@ -210,7 +211,7 @@ def offer_pdf(offer_id=1):
             format="A4",
             display_header_footer=True,
             print_background=True,
-            margin={"top": "100px", "bottom": "80px", "left": "40px", "right": "40px"},
+            margin={"top": "100px", "bottom": "80px", "left": "60px", "right": "60px"},
             header_template=f"""
               <style>
               /* force background-colors in print */
@@ -218,8 +219,8 @@ def offer_pdf(offer_id=1):
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 }}
-                .h{{width:100%;padding:0 40px;}}
-                .logo{{float:right;height:40px;}}
+                .h{{width:100%;padding:0 20px;}}
+                .logo{{float:right;height:60px;}}
               </style>
               <div class="h">
                 <img src="data:image/png;base64,{logo_b64}" class="logo"/>
@@ -235,8 +236,8 @@ def offer_pdf(offer_id=1):
                 .footer {{
                     position: absolute;
                     bottom: 10px;
-                    left: 40px;    /* ← page.pdf left margin */
-                    right: 40px;   /* ← page.pdf right margin */
+                    left: 20px;    /* ← page.pdf left margin */
+                    right: 20px;   /* ← page.pdf right margin */
                     height: 80px;
                     font-family: sans-serif;
                     font-size: 9px;
@@ -260,12 +261,12 @@ def offer_pdf(offer_id=1):
                 }}
                 .doc-id {{
                     position: absolute;
-                    top: 20px;
+                    top: 23px;
                     right: 60px;
                 }}
                 .footer-date {{
                     position: absolute;
-                    top: 52px;
+                    top: 49px;
                     right: 60px;
                 }}
                 .page-box {{
