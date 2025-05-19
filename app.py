@@ -37,10 +37,6 @@ def _img_to_data_uri(filename):
     return f"data:image/{ext};base64,{b64}"
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
 
 @app.route("/offer_html/", defaults={"offer_id": 1})
 @app.route("/offer_html/<int:offer_id>")
@@ -51,8 +47,8 @@ def offer_html(offer_id):
     )
 
 
-@app.route("/offer/", defaults={"offer_id": 1})
-@app.route("/offer/<int:offer_id>")
+@app.route("/", defaults={"offer_id": 1})
+@app.route("/<int:offer_id>")
 def offer_pdf(offer_id=1):
     COMPANY["logo"] = _img_to_data_uri("logo.png")
     COMPANY["cover_photo"] = _img_to_data_uri("cover.jpg")
