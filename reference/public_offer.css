@@ -36,10 +36,6 @@
       margin: 0; /* Margins will be handled by individual sections or a wrapper */
     }
 
-    .offer-page-wrapper {
-        /* On screen, provide some basic centering and max-width for content pages if desired */
-    }
-
     @media screen {
       #coverPage { display: none !important; } /* Hide cover on screen by default, assuming PDF is primary */
       body.offer-page-wrapper {

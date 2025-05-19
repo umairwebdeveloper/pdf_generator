@@ -1,30 +1,65 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-  <meta charset="utf-8">
-  <title>Angebot – {{ product.product_name }}</title>
-  <link rel="stylesheet"
-        href="{{ url_for('static', filename='css/public_offer.css', _external=True) }}">
-</head>
-<body class="offer-page-wrapper">
+    <head>
+        <meta charset="utf-8" />
+        <title>Angebot</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/public_offer.css', _external=True) }}"
+        />
+    </head>
+    <body class="offer-page-wrapper">
+        <section
+            style="position: relative; page-break-after: always; height: 99vh"
+        >
+            <img
+                src="{{ company.cover_photo }}"
+                alt="Cover Image"
+                class="cover-logo"
+                style="
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    margin: 0;
+                    padding: 0;
+                "
+            />
+            <div id="offer-footer" style="margin: 70px 20px">
+                <p class="company-name">{{company.name}}</p>
+                <p class="company-tagline">{{company.tagline}}</p>
+                <p class="doc-info">{{company.doc_id}}, {{company.date}}</p>
+            </div>
+            <img
+                src="{{ company.logo }}"
+                alt="Company Logo"
+                class="corner-logo"
+                style="
+                    position: absolute;
+                    bottom: 15px;
+                    right: 15px;
+                    width: auto;
+                    height: 60px;
+                "
+            />
+        </section>
 
-  {# ────────── TOC ────────── #}
-  <section id="toc" style="page-break-after:always">
-    <div class="toc-header">
-      <h1>Inhaltsverzeichnis</h1>
-      <span class="page-label">Seite</span>
-    </div>
-    {% for item in toc %}
-      <div class="toc-item">
-        <span class="title"><a href="#{{ item.id }}">{{ item.title }}</a></span>
-        <span class="dots"></span>
-        <span class="page">{{ item.page }}</span>
-      </div>
-    {% endfor %}
-  </section>
-
-  {# ────────── CONTENT SECTIONS ────────── #}
-  {% include "sections.html" %}
-
-</body>
+        {# ────────── TOC ──────── #}
+        <section id="toc" style="page-break-after: always">
+            <div class="toc-header">
+                <h1>Inhaltsverzeichnis</h1>
+                <span class="page-label">Seite</span>
+            </div>
+            {% for item in toc %}
+            <div class="toc-item">
+                <span class="title"
+                    ><a href="#{{ item.id }}">{{ item.title }}</a></span
+                >
+                <span class="dots"></span>
+                <span class="page">{{ item.page }}</span>
+            </div>
+            {% endfor %}
+        </section>
+        {# ────────── CONTENT SECTIONS ────────── #} {% include
+        "components/sections.html" %}
+    </body>
 </html>

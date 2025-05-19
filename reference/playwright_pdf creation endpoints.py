@@ -2,7 +2,7 @@
 # PDF CREATION
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _html_to_pdf(html: str, base_url: str | None = None) -> bytes:
+def _html_to_pdf(html: str, base_url: str | None = None) -> bytes:                           
     """Render *html* with headless Chromium & return the PDF bytes with background support."""
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)

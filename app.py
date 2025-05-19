@@ -1,101 +1,40 @@
 from flask import Flask, render_template, make_response, url_for
 from playwright.sync_api import sync_playwright
 import base64, datetime, os
+from io import BytesIO
+from PyPDF2 import PdfReader, PdfWriter
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
-
-# — 1) load your real data here…
-company = {
-    "company_name": "Acme GmbH",
-    "company_bg": "bg.png",
-    "company_logo": "logo.png",
-    "custom_design_enabled": False,
-    "custom_css_offer": None,
+COMPANY = {
+    "name": "torebest GmbH & Co. KG",
+    "tagline": "Zuführen, Sägen und Entgraten",
+    "doc_id": "QU-29352",
+    "date": "09.10.20",
 }
-product = {
-    "product_name": "SuperWidget 3000",
-    "product_description": "Das allerbeste Widget …",
-    "product_img": "product.png",
-}
-creation_date = datetime.datetime.now().strftime("%d.%m.%Y")
-base_price = 1234.00
-total_price = 2345.00
-areas = [
+TOC = [
     {
-        "area_name": "Modul A",
-        "area_img": "modul_a.png",
-        "area_description": "Beschreibung zu Modul A",
-        "groups": [
-            {
-                "group_name": "Option 1",
-                "group_description": "Premium Variante",
-                "selected_option": {
-                    "option_name": "Premium",
-                    "option_description": "…",
-                    "option_img": "prem.png",
-                },
-                "selected_price": 500.00,
-            },
-            {
-                "group_name": "Option 2",
-                "group_description": "Standard Variante",
-                "selected_option": {
-                    "option_name": "Standard",
-                    "option_description": "…",
-                    "option_img": "stand.png",
-                },
-                "selected_price": 300.00,
-            },
-            {
-                "group_name": "Option 3",
-                "group_description": "Basic Variante",
-                "selected_option": {
-                    "option_name": "Basic",
-                    "option_description": "…",
-                    "option_img": "basic.png",
-                },
-                "selected_price": 100.00,
-            },
-        ],
+        "id": "project-responsibles",
+        "title": "Deckblatt",
+        "page": 1,
     },
     {
-        "area_name": "Modul B",
-        "area_img": "modul_b.png",
-        "area_description": "Beschreibung zu Modul B",
-        "groups": [
-            {
-                "group_name": "Option 1",
-                "group_description": "Premium Variante",
-                "selected_option": {
-                    "option_name": "Premium",
-                    "option_description": "…",
-                    "option_img": "prem.png",
-                },
-                "selected_price": 500.00,
-            },
-            {
-                "group_name": "Option 2",
-                "group_description": "Standard Variante",
-                "selected_option": {
-                    "option_name": "Standard",
-                    "option_description": "…",
-                    "option_img": "stand.png",
-                },
-                "selected_price": 300.00,
-            },
-            {
-                "group_name": "Option 3",
-                "group_description": "Basic Variante",
-                "selected_option": {
-                    "option_name": "Basic",
-                    "option_description": "…",
-                    "option_img": "basic.png",
-                },
-                "selected_price": 100.00,
-            },
-        ],
+        "id": "productOverview",
+        "title": "Preisübersicht",
+        "page": 2,
+    },
+    {
+        "id": "summaryTable",
+        "title": "Preistabelle",
+        "page": 3,
     },
 ]
+
+
+def _img_to_data_uri(filename):
+    img_path = os.path.join(app.static_folder, "img", filename)
+    b64 = base64.b64encode(open(img_path, "rb").read()).decode()
+    ext = os.path.splitext(filename)[1].lstrip(".").lower()
+    return f"data:image/{ext};base64,{b64}"
 
 
 @app.route("/")
@@ -108,198 +47,105 @@ def index():
 def offer_html(offer_id):
     # render just the content (cover, overview, summary, areas)
     return render_template(
-        "content.html",
-        company=company,
-        product=product,
-        creation_date=creation_date,
-        base_price=base_price,
-        total_price=total_price,
-        areas=areas,
+        "offer.html",
     )
 
 
 @app.route("/offer/", defaults={"offer_id": 1})
 @app.route("/offer/<int:offer_id>")
 def offer_pdf(offer_id=1):
-
-    # — 2) Render JUST the content (no TOC) into a string —
-    content_html = render_template(
-        "content.html",
-        company=company,
-        product=product,
-        creation_date=creation_date,
-        base_price=base_price,
-        total_price=total_price,
-        areas=areas,
-    )
-
-    # — 3) Launch Playwright, load content-html to measure positions —
+    COMPANY["logo"] = _img_to_data_uri("logo.png")
+    COMPANY["cover_photo"] = _img_to_data_uri("cover.jpg")
+    logo_path = os.path.join(app.static_folder, "img", "logo.png")
+    logo_b64 = base64.b64encode(open(logo_path, "rb").read()).decode()
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
 
-        # embed base64-logo for header
-        logo_path = os.path.join(app.static_folder, "img", "logo.png")
-        logo_b64 = base64.b64encode(open(logo_path, "rb").read()).decode()
-
-        # load the content-only HTML
-        page.set_content(content_html, wait_until="networkidle")
         # emulate A4 dimensions (at 96dpi)
         page.set_viewport_size({"width": 794, "height": 1122})
-
-        # compute page-height in px
-        page_height = 1122
-
-        # find each section’s offset, compute page = floor(offsetY/page_height)+1
-        positions = page.evaluate(
-            f"""
-            () => {{
-              const secs = Array.from(document.querySelectorAll('section[id]'));
-              const result = {{}};
-              secs.forEach(s => {{
-                const rect = s.getBoundingClientRect();
-                // rect.top relative to viewport; plus scrollY to get absolute
-                const y = rect.top + window.scrollY;
-                result[s.id] = Math.floor(y / {page_height}) + 1;
-              }});
-              return result;
-            }}
-        """
-        )
         browser.close()
-
-    # — 4) Build your TOC list with computed pages —
-    page_offset = 2
-    toc = [
-        {"id": "coverPage", "title": "Deckblatt", "page": positions["coverPage"]+page_offset},
-        {
-            "id": "productOverview",
-            "title": "Preisübersicht",
-            "page": positions["productOverview"]+page_offset,
-        },
-        {
-            "id": "summaryTable",
-            "title": "Preistabelle",
-            "page": positions["summaryTable"]+page_offset,
-        },
-    ] + [
-        {"id": f"area_{i+1}", "title": a["area_name"], "page": positions[f"area_{i+1}"]+page_offset}
-        for i, a in enumerate(areas)
-    ]
 
     # — 5) Render the *full* HTML including the TOC —
     full_html = render_template(
         "offer.html",
-        toc=toc,
-        content_html=content_html,
-        company=company,
-        product=product,
-        creation_date=creation_date,
-        base_price=base_price,
-        total_price=total_price,
-        areas=areas,
+        company=COMPANY,
+        toc=TOC,
     )
 
-    # — 6) Finally generate the PDF with header/footer —
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
-
-        # load the fully rendered HTML (TOC + sections) all at once
         page.set_content(full_html, wait_until="networkidle")
-        pdf_bytes = page.pdf(
+        common_opts = dict(
             format="A4",
-            display_header_footer=True,
             print_background=True,
             margin={"top": "100px", "bottom": "80px", "left": "60px", "right": "60px"},
-            header_template=f"""
-              <style>
-              /* force background-colors in print */
-                * {{
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                }}
-                .h{{width:100%;padding:0 20px;}}
-                .logo{{float:right;height:60px;}}
-              </style>
-              <div class="h">
-                <img src="data:image/png;base64,{logo_b64}" class="logo"/>
-              </div>
-            """,
-            footer_template=f"""
-                <style>
-                /* force background-colors in print */
-                * {{
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                }}
-                .footer {{
-                    position: absolute;
-                    bottom: 10px;
-                    left: 20px;    /* ← page.pdf left margin */
-                    right: 20px;   /* ← page.pdf right margin */
-                    height: 80px;
-                    font-family: sans-serif;
-                    font-size: 9px;
-                    color: #555;
-                }}
-                .footer-line {{
-                    position: absolute;
-                    top: 40px;
-                    left: 0;
-                    right: 40px;
-                    height: 1px;
-                    background: #d31f2d;
-                }}
-                .footer-vertical {{
-                    position: absolute;
-                    top: 0;
-                    right: 39px;
-                    width: 1px;
-                    height: 79px;
-                    background: #d31f2d;
-                }}
-                .doc-id {{
-                    position: absolute;
-                    top: 23px;
-                    right: 60px;
-                }}
-                .footer-date {{
-                    position: absolute;
-                    top: 49px;
-                    right: 60px;
-                }}
-                .page-box {{
-                    position: absolute;
-                    bottom: 0;
-                    right: 0;
-                    width: 40px;
-                    height: 40px;
-                    background: #d31f2d;
-                    color: #fff;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }}
-                </style>
-                <div class="footer">
-                <div class="footer-line"></div>
-                <div class="footer-vertical"></div>
-                <div class="doc-id">QU-2932</div>
-                <div class="footer-date">{datetime.datetime.now():%d.%m.%Y}</div>
-                <div class="page-box"><span class="pageNumber"></span></div>
-                </div>
-                """,
         )
+        pdf_page1 = page.pdf(
+            format="A4",
+            print_background=True,
+            margin={"top": "0px", "bottom": "0px", "left": "0px", "right": "0px"},
+            display_header_footer=False,
+            page_ranges="1",
+        )
+        header_tpl = f"""
+          <style>
+            *, *::before, *::after {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+            .h      {{ width:100%; padding:0 20px; }}
+            .logo   {{ float:right; height:60px; }}
+          </style>
+          <div class="h">
+            <img src="data:image/png;base64,{logo_b64}" class="logo" />
+          </div>
+        """
+        footer_tpl = f"""
+          <style>
+            *, *::before, *::after {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+            .footer          {{ position:absolute; bottom:10px; left:20px; right:20px; height:80px;
+                                  font-family:sans-serif; font-size:9px; color:#555; }}
+            .footer-line     {{ position:absolute; top:40px; left:0; right:40px; height:1px; background:#d31f2d; }}
+            .footer-vertical {{ position:absolute; top:0;  right:39px; width:1px; height:79px; background:#d31f2d; }}
+            .doc-id          {{ position:absolute; top:23px; right:60px; }}
+            .footer-date     {{ position:absolute; top:49px; right:60px; }}
+            .page-box        {{ position:absolute; bottom:0; right:0; width:40px; height:40px;
+                                  background:#d31f2d; color:#fff; font-size:14px;
+                                  display:flex; align-items:center; justify-content:center; }}
+          </style>
+          <div class="footer">
+            <div class="footer-line"></div>
+            <div class="footer-vertical"></div>
+            <div class="doc-id">QU-2932</div>
+            <div class="footer-date">{datetime.datetime.now():%d.%m.%Y}</div>
+            <div class="page-box"><span class="pageNumber"></span></div>
+          </div>
+        """
+        pdf_rest = page.pdf(
+            **common_opts,
+            display_header_footer=True,
+            header_template=header_tpl,
+            footer_template=footer_tpl,
+            page_ranges="2-",
+        )
+
         browser.close()
 
-    # 7) Stream inline
+    reader1 = PdfReader(BytesIO(pdf_page1))
+    reader2 = PdfReader(BytesIO(pdf_rest))
+    writer = PdfWriter()
+
+    for p in reader1.pages:
+        writer.add_page(p)
+    for p in reader2.pages:
+        writer.add_page(p)
+
+    merged_stream = BytesIO()
+    writer.write(merged_stream)
+    pdf_bytes = merged_stream.getvalue()
+
     resp = make_response(pdf_bytes)
     resp.headers["Content-Type"] = "application/pdf"
-    resp.headers["Content-Disposition"] = "inline; filename=offer_{}.pdf".format(
-        offer_id
-    )
+    resp.headers["Content-Disposition"] = f"inline; filename=offer_{offer_id}.pdf"
     return resp
 
 
