@@ -22,10 +22,13 @@ PAGE_WIDTH = 794  # A4 width in px at 96dpi
 COMPANY = {
     "name": "torebest GmbH & Co. KG",
     "tagline": "Zuführen, Sägen und Entgraten",
+    "title": "Angebot",
+    "subtitle": "Angebot für die Lieferung",
     "doc_id": "QU-29352",
     "date": "09.10.20",
     "cover_photo": None,  # set below
     "logo": None,
+    
 }
 
 # your static TOC entries—make sure the `id` values match your <section id="…">s
@@ -82,7 +85,7 @@ def offer_pdf(offer_id):
 
     # 1) render your content sections once
     content_html = render_template(
-        "components/sections.html",
+        "sections.html",
         company=COMPANY,
         # pass whatever that partial needs…
     )
@@ -209,9 +212,12 @@ def offer_pdf(offer_id):
 @app.route("/offer_html/", defaults={"offer_id": 1})
 @app.route("/offer_html/<int:offer_id>")
 def offer_html(offer_id):
-    # render just the content (cover, overview, summary, areas)
+    COMPANY["logo"] = _img_to_data_uri("logo.png")
+    COMPANY["cover_photo"] = _img_to_data_uri("cover.jpg")
     return render_template(
         "offer.html",
+        company=COMPANY,
+        toc=TOC,
     )
 
 

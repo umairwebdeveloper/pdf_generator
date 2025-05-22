@@ -24,6 +24,24 @@
                     padding: 0;
                 "
             />
+            <!-- overlay container -->
+  <div style="
+  background-color: #6a6b70;
+  position:absolute;
+  top: 40%;
+  left:80%;
+  transform:translate(-50%, -50%);
+  height: 200px;
+    width: 80%;
+  pointer-events:none;  /* so links etc still clickable */
+">
+<div style="margin:0; margin-top:100px; margin-bottom: 5px; font-size:2.5rem; color:#f3f1f2;">
+  {{ company.title }}
+</div>
+<div style="margin:0; font-size:2.75rem; color:#f3f1f2; font-weight: 600;"> 
+  {{ company.subtitle }}
+</div>
+</div>
             <div id="offer-footer" style="margin: 70px 20px">
                 <p class="company-name">{{company.name}}</p>
                 <p class="company-tagline">{{company.tagline}}</p>

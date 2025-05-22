@@ -1,8 +1,8 @@
-from flask import Flask, render_template, make_response, url_for
+from flask import Flask, render_template, make_response
 from playwright.sync_api import sync_playwright
 import base64, datetime, os
 from io import BytesIO
-from PyPDF2 import PdfReader, PdfWriter, PdfMerger
+from PyPDF2 import PdfMerger
 
 from flask import Flask, render_template, make_response
 from playwright.sync_api import sync_playwright
@@ -22,6 +22,8 @@ PAGE_WIDTH = 794  # A4 width in px at 96dpi
 COMPANY = {
     "name": "torebest GmbH & Co. KG",
     "tagline": "Zuführen, Sägen und Entgraten",
+    "title": "Angebot",
+    "subtitle": "Angebot für die Lieferung",
     "doc_id": "QU-29352",
     "date": "09.10.20",
     "cover_photo": None,  # set below
