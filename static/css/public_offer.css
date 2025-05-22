@@ -22,7 +22,7 @@ body {
 }
 .toc-item {
     display: flex;
-    align-items: center;
+    align-items: end;
     margin-bottom: 0.4em;
 }
 #toc .title a {
@@ -43,6 +43,7 @@ body {
     flex: 1;
     border-bottom: 2px dotted #000;
     margin: 0 0.5em;
+    margin-bottom: 0.2em;
 }
 .toc-item .page {
     white-space: nowrap;
