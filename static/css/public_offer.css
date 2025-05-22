@@ -1,3 +1,4 @@
+/* === Root Variables: Colors and Font Sizes === */
 :root {
     /* Color Variables */
     --primary-color: #d31f2d;
@@ -23,12 +24,13 @@
     --font-size-xl: 1.5rem;
 }
 
+/* === Base Styles === */
 body {
     font-family: sans-serif;
     margin: 0;
 }
 
-/* ─── TOC layout ─── */
+/* === Table of Contents Layout === */
 .toc-header {
     display: flex;
     justify-content: space-between;
@@ -49,13 +51,10 @@ body {
     align-items: end;
     margin-bottom: 0.4em;
 }
-/* TOC links: black, no underline */
 #toc .title a {
     color: var(--black);
     text-decoration: none;
 }
-
-/* Optional: keep them un-underlined even on hover */
 #toc .title a:hover,
 #toc .title a:focus {
     text-decoration: none;
@@ -76,13 +75,13 @@ body {
     flex-shrink: 0;
 }
 
-/* common wrapper for every section */
+/* === Section Wrapper === */
 section {
     font-family: sans-serif;
     color: var(--text-color);
 }
 
-/* Project Responsibles */
+/* === Project Responsibles Section === */
 .project-responsibles {
     margin: 2rem;
 }
@@ -138,7 +137,7 @@ section {
     text-decoration: underline;
 }
 
-/* area blocks flow one after the other */
+/* === Area Blocks === */
 .area-block {
     margin-bottom: 1.5em;
 }
@@ -164,7 +163,7 @@ section {
     font-weight: bold;
 }
 
-/* Container */
+/* === Bundloader Section === */
 .bundloader-section {
     font-family: sans-serif;
     margin: 2rem;
@@ -203,7 +202,7 @@ section {
     margin-bottom: 1rem;
 }
 
-/* Table without side borders */
+/* === Table Styles === */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -221,23 +220,23 @@ table thead tr {
     background-color: var(--table-header-bg);
 }
 table th,
- table td {
+table td {
     border: 1px solid var(--gray);
     padding: 0.5em;
     border-left: 0 !important;
     border-right: 0 !important;
 }
 table th:nth-child(1),
- table td:nth-child(1) {
+table td:nth-child(1) {
     text-align: left;
 }
 table th:nth-child(2),
- table td:nth-child(2) {
+table td:nth-child(2) {
     text-align: center;
     white-space: nowrap;
 }
 table th:nth-child(3),
- table td:nth-child(3) {
+table td:nth-child(3) {
     text-align: right;
 }
 table th sup,
@@ -249,7 +248,7 @@ table td sup {
     top: -0.3em;
 }
 
-/* Footnotes */
+/* === Footnotes === */
 .footnotes {
     font-size: var(--font-size-xxs);
     color: var(--muted-color);
@@ -270,6 +269,7 @@ table td sup {
     margin-right: 0.275em;
 }
 
+/* === Zusatz Section === */
 .zusatz-section {
     font-family: sans-serif;
     margin: 2rem;
@@ -306,6 +306,7 @@ table td sup {
     margin: 0.2rem 0;
 }
 
+/* === Zusatz Image Section === */
 .zusatz-img-section {
     font-family: sans-serif;
     margin: 2rem;
@@ -346,6 +347,7 @@ table td sup {
     line-height: 1.4;
 }
 
+/* === Rasacut Section === */
 .rasacut-section {
     font-family: sans-serif;
     margin: 2rem;
@@ -365,6 +367,7 @@ table td sup {
     margin-bottom: 1rem;
 }
 
+/* === Not Included Section === */
 .not-included-section {
     font-family: sans-serif;
     margin: 2rem;
@@ -410,6 +413,7 @@ table td sup {
     background-color: var(--primary-color);
 }
 
+/* === Delivery Terms === */
 .delivery-terms {
     font-family: sans-serif;
     margin: 2rem;
@@ -451,24 +455,22 @@ table td sup {
     white-space: pre-line;
 }
 
+/* === Offer Footer === */
 .offer-footer .company-name {
     font-size: var(--font-size-xl);
     font-weight: bold;
     margin: 0;
     line-height: 1.2;
 }
-
 .offer-footer .company-tagline {
     font-size: var(--font-size-lg);
     font-weight: bold;
     margin: 0.25rem 0;
     line-height: 1.3;
 }
-
 .offer-footer .doc-info {
     font-size: var(--font-size-sm);
     color: var(--muted-color);
     margin: 0.5rem 0 0;
     line-height: 1.2;
 }
-
